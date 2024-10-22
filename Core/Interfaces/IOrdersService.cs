@@ -1,6 +1,6 @@
 ﻿using Data.Entities;
 
-namespace Core.Services;
+namespace Core.Interfaces;
 
 public interface IOrdersService
 {

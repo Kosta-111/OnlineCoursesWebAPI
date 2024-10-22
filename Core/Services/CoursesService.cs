@@ -1,23 +1,38 @@
-﻿using AutoMapper;
+﻿using Data;
+using AutoMapper;
 using Core.Models;
-using Data;
+using Core.Interfaces;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Core.Services;
 
 public class CoursesService(
-    OnlineCoursesDbContext context,
     IMapper mapper,
-    IFilesService filesService
+    IFilesService filesService,
+    OnlineCoursesDbContext context
     ) : ICoursesService
 {
-    private readonly OnlineCoursesDbContext context = context;
-    private readonly IFilesService filesService = filesService;
-    private readonly IMapper mapper = mapper;
+    public CourseModel GetById(int id)
+    {
+        var course = context.Courses.Find(id)
+            ?? throw new Exception($"Course with id {id} not found!");
 
-    public List<Category> Categories => context.Categories.ToList();
-    public List<Level> Levels => context.Levels.ToList();
+        context.Entry(course).Reference(x => x.Category).Load();
+        context.Entry(course).Reference(x => x.Level).Load();
+
+        return mapper.Map<CourseModel>(course);
+    }
+
+    public IEnumerable<CourseModel> GetAll()
+    {
+        var courses = context.Courses
+            .Include(x => x.Category)
+            .Include(x => x.Level)
+            .ToList();
+
+        return mapper.Map<IEnumerable<CourseModel>>(courses);
+    }
 
     public async Task Create(CourseModelCreate model)
     {
@@ -29,24 +44,6 @@ public class CoursesService(
 
         context.Courses.Add(entity);
         context.SaveChanges();
-    }
-
-    public List<CourseModel> GetCourseModels()
-    {
-        return mapper.Map<List<CourseModel>>(GetCourses());
-    }
-
-    public async Task<bool> Delete(int id)
-    {
-        var entity = context.Courses.Find(id);
-        if (entity is null) return false;
-
-        context.Courses.Remove(entity);
-        context.SaveChanges();
-
-        if (entity.ImageUrl is not null)
-            await filesService.DeleteImage(entity.ImageUrl);
-        return true;
     }
 
     public async Task Edit(CourseModelEdit model)
@@ -61,33 +58,16 @@ public class CoursesService(
         context.SaveChanges();
     }
 
-    public CourseModelEdit? GetModelEdit(int id)
+    public async Task Delete(int id)
     {
-        var entity = context.Courses.Find(id);
-        return entity is null 
-            ? null
-            : mapper.Map<CourseModelEdit>(entity);
-    }
+        var entity = context.Courses.Find(id)
+            ?? throw new Exception($"Course with id {id} not found!");
 
-    public CourseModelDetailed? GetModelDetailed(int id)
-    {
-        var entity = context.Courses
-            .Include(x => x.Category)
-            .Include(x => x.Level)
-            .Include(x => x.Lectures.OrderBy(x => x.Number))
-            .Where(x => x.Id == id)
-            .FirstOrDefault();
+        // delete file
+        if (entity.ImageUrl is not null)
+            await filesService.DeleteImage(entity.ImageUrl);
 
-        return entity is null
-            ? null
-            : mapper.Map<CourseModelDetailed>(entity);
-    }
-
-    public List<Course> GetCourses()
-    {
-        return context.Courses
-            .Include(x => x.Category)
-            .Include(x => x.Level)
-            .ToList();
+        context.Courses.Remove(entity);
+        context.SaveChanges();
     }
 }

@@ -1,12 +1,13 @@
-﻿using Data;
+﻿using Core.Interfaces;
+using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Core.Services;
 
 public class OrdersService(
-    OnlineCoursesDbContext context,
-    IWishListService wishListService
+    OnlineCoursesDbContext context
+    //IWishListService wishListService
     ) : IOrdersService
 {
     private readonly OnlineCoursesDbContext context = context;
@@ -16,7 +17,7 @@ public class OrdersService(
         {
             CreationDate = DateTime.Now,
             UserId = userId!,
-            Courses = wishListService.GetCourses().ToList()
+            //Courses = wishListService.GetCourses().ToList()
         };
         context.Orders.Add(order);
         context.SaveChanges();

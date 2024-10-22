@@ -17,5 +17,10 @@ public class AppProfile : Profile
 
         //lecture
         CreateMap<Lecture, LectureModel>();
+
+        //user
+        CreateMap<RegisterModel, User>()
+            .ForMember(x => x.UserName, opt => opt.MapFrom(src => src.Email))
+            .ForMember(x => x.PasswordHash, opt => opt.Ignore());
     }
 }
