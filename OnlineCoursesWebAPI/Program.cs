@@ -9,6 +9,7 @@ using FluentValidation.AspNetCore;
 using Core.Services;
 using Data.Entities;
 using Microsoft.AspNetCore.Identity;
+using Core.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,15 +29,22 @@ builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssembli
 builder.Services.AddDbContext<OnlineCoursesDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddIdentityCore<User>(options => 
+builder.Services.AddDefaultIdentity<User>(options =>
     options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
+    .AddSignInManager<SignInManager<User>>()
     .AddEntityFrameworkStores<OnlineCoursesDbContext>();
 
 builder.Services.AddAutoMapper(typeof(AppProfile));
 builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<ICoursesService, CoursesService>();
 builder.Services.AddScoped<IAccountsService, AccountsService>();
+
+//SMTP
+var smtpConfig = builder.Configuration.GetSection("SmtpConfig").Get<SmtpConfiguration>()
+    ?? throw new Exception("missing 'SmtpConfig' configuration item in appsettings.json");
+builder.Services.AddSingleton(smtpConfig);
+builder.Services.AddSingleton<ISendMailService, SendMailService>();
 
 var app = builder.Build();
 

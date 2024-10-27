@@ -5,7 +5,8 @@ namespace Core.Interfaces;
 public interface IAccountsService
 {
     Task Register(RegisterModel model);
-
-    // Login
-    // Logout
+    Task Login(LoginModel model);
+    Task Logout();
+    Task SendPasswordResetToken(PasswordResetTokenRequest req);
+    Task ResetPassword(ResetPasswordModel model);
 }

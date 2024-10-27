@@ -1,7 +1,9 @@
 ﻿using Data;
+using System.Net;
 using AutoMapper;
 using Core.Models;
 using Core.Interfaces;
+using Core.Exceptions;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +18,7 @@ public class CoursesService(
     public CourseModel GetById(int id)
     {
         var course = context.Courses.Find(id)
-            ?? throw new Exception($"Course with id {id} not found!");
+            ?? throw new HttpException($"Course with id {id} not found!", HttpStatusCode.NotFound);
 
         context.Entry(course).Reference(x => x.Category).Load();
         context.Entry(course).Reference(x => x.Level).Load();
@@ -61,7 +63,7 @@ public class CoursesService(
     public async Task Delete(int id)
     {
         var entity = context.Courses.Find(id)
-            ?? throw new Exception($"Course with id {id} not found!");
+            ?? throw new HttpException($"Course with id {id} not found!", HttpStatusCode.NotFound);
 
         // delete file
         if (entity.ImageUrl is not null)

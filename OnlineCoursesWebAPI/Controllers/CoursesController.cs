@@ -1,9 +1,11 @@
 ﻿using Core.Models;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineCoursesWebAPI.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class CoursesController(ICoursesService coursesService) : ControllerBase

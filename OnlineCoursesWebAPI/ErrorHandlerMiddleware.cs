@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Core.Exceptions;
 
 namespace OnlineCoursesWebAPI;
 
@@ -16,6 +17,10 @@ public class ErrorHandlerMiddleware
         {
             // Call the next delegate/middleware in the pipeline.
             await _next(context);
+        }
+        catch (HttpException ex)
+        {
+            SendResponse(context, ex.Message, ex.StatusCode);
         }
         catch (Exception ex)
         {
