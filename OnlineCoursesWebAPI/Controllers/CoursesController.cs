@@ -2,12 +2,14 @@
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace OnlineCoursesWebAPI.Controllers;
 
-[Authorize]
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+//[Authorize]
 public class CoursesController(ICoursesService coursesService) : ControllerBase
 {
     [HttpGet]

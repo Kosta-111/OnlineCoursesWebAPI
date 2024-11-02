@@ -1,15 +1,19 @@
 using Data;
+using Data.Entities;
+using Core.Services;
 using Core.Interfaces;
+using Core.Configuration;
 using Core.MapperProfiles;
-using OnlineCoursesWebAPI.Services;
-using Microsoft.EntityFrameworkCore;
 using OnlineCoursesWebAPI;
+using OnlineCoursesWebAPI.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Core.Services;
-using Data.Entities;
+using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Core.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +24,6 @@ string connectionString = builder.Configuration.GetConnectionString("LocalDb")!;
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 //Fluent Validation
 builder.Services.AddFluentValidationAutoValidation();
@@ -45,6 +48,50 @@ var smtpConfig = builder.Configuration.GetSection("SmtpConfig").Get<SmtpConfigur
     ?? throw new Exception("missing 'SmtpConfig' configuration item in appsettings.json");
 builder.Services.AddSingleton(smtpConfig);
 builder.Services.AddSingleton<ISendMailService, SendMailService>();
+
+//JWT
+var jwtOpts = builder.Configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()!;
+builder.Services.AddSingleton(_ => jwtOpts!);
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
+{
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtOpts.Issuer,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOpts.Key)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 

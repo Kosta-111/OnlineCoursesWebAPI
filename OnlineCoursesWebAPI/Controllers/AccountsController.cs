@@ -1,12 +1,12 @@
-﻿using Core.Models;
+﻿using System.Net;
+using Core.Models;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace OnlineCoursesWebAPI.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
 public class AccountsController(IAccountsService accountsService) : ControllerBase
 {
     [HttpPost("register")]
@@ -19,8 +19,8 @@ public class AccountsController(IAccountsService accountsService) : ControllerBa
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginModel model)
     {
-        await accountsService.Login(model);
-        return Ok();
+        var loginResponse = await accountsService.Login(model);
+        return Ok(loginResponse);
     }
 
     [HttpPost("logout")]

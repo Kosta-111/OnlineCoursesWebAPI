@@ -10,12 +10,13 @@ namespace Core.Services;
 
 public class AccountsService(
     IMapper mapper,
+    IJwtService jwtService,
     ISendMailService mailService,
     UserManager<User> userManager,
     SignInManager<User> signInManager
     ) : IAccountsService
 {
-    public async Task Login(LoginModel model)
+    public async Task<LoginResponse> Login(LoginModel model)
     {
         var user = await userManager.FindByEmailAsync(model.Email);
 
@@ -23,7 +24,11 @@ public class AccountsService(
         {
             throw new HttpException("Invalid login or password.", HttpStatusCode.BadRequest);
         }
-        await signInManager.SignInAsync(user, true);
+
+        //await signInManager.SignInAsync(user, true);
+        var claims = jwtService.GetClaims(user);
+        var accessToken = jwtService.CreateToken(claims);
+        return new LoginResponse { AccessToken = accessToken };
     }
 
     public async Task Logout()
