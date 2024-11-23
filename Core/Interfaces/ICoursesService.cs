@@ -9,4 +9,7 @@ public interface ICoursesService
     Task Create(CourseModelCreate model);
     Task Edit(CourseModelEdit model);
     Task Delete(int id);
+
+    IEnumerable<CategoryModel> GetCategories();
+    IEnumerable<LevelModel> GetLevels();
 }

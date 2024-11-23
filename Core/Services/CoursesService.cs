@@ -72,4 +72,16 @@ public class CoursesService(
         context.Courses.Remove(entity);
         context.SaveChanges();
     }
+
+    public IEnumerable<CategoryModel> GetCategories()
+    {
+        var categories = context.Categories.ToList();
+        return mapper.Map<IEnumerable<CategoryModel>>(categories);
+    }
+
+    public IEnumerable<LevelModel> GetLevels()
+    {
+        var levels = context.Levels.ToList();
+        return mapper.Map<IEnumerable<LevelModel>>(levels);
+    }
 }

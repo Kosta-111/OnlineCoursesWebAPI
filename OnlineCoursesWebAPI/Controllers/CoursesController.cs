@@ -27,14 +27,14 @@ public class CoursesController(ICoursesService coursesService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] CourseModelCreate model)
+    public async Task<IActionResult> Create([FromBody] CourseModelCreate model)
     {
         await coursesService.Create(model);
         return Ok();
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit([FromForm] CourseModelEdit model)
+    public async Task<IActionResult> Edit([FromBody] CourseModelEdit model)
     {
         await coursesService.Edit(model);
         return Ok();
@@ -45,5 +45,19 @@ public class CoursesController(ICoursesService coursesService) : ControllerBase
     {
         await coursesService.Delete(id);
         return Ok();
+    }
+
+    [HttpGet("categories")]
+    public IActionResult Categories()
+    {
+        var categories = coursesService.GetCategories();
+        return Ok(categories);
+    }
+
+    [HttpGet("levels")]
+    public IActionResult Levels()
+    {
+        var levels = coursesService.GetLevels();
+        return Ok(levels);
     }
 }

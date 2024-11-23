@@ -18,6 +18,12 @@ public class AppProfile : Profile
         //lecture
         CreateMap<Lecture, LectureModel>();
 
+        //level
+        CreateMap<Level, LevelModel>();
+
+        //category
+        CreateMap<Category, CategoryModel>();
+
         //user
         CreateMap<RegisterModel, User>()
             .ForMember(x => x.UserName, opt => opt.MapFrom(src => src.Email))
