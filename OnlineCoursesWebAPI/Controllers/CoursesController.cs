@@ -8,8 +8,8 @@ namespace OnlineCoursesWebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 //[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class CoursesController(ICoursesService coursesService) : ControllerBase
 {
     [HttpGet]
@@ -27,14 +27,14 @@ public class CoursesController(ICoursesService coursesService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CourseModelCreate model)
+    public async Task<IActionResult> Create([FromForm] CourseModelCreate model)
     {
         await coursesService.Create(model);
         return Ok();
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit([FromBody] CourseModelEdit model)
+    public async Task<IActionResult> Edit([FromForm] CourseModelEdit model)
     {
         await coursesService.Edit(model);
         return Ok();
