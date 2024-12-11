@@ -4,11 +4,11 @@ namespace OnlineCoursesWebAPI.Services;
 
 public class FilesService(IWebHostEnvironment env) : IFilesService
 {
-    private const string folderName = "Images";
+    private const string folderName = "images";
     public async Task<string> SaveImage(IFormFile file)
     {
         // get new file path
-        var root = env.ContentRootPath;
+        var root = env.WebRootPath;
         var name = Guid.NewGuid().ToString();
         var ext = Path.GetExtension(file.FileName);
 
@@ -31,7 +31,7 @@ public class FilesService(IWebHostEnvironment env) : IFilesService
 
     public Task DeleteImage(string path)
     {
-        string fullPath = Path.Combine(env.ContentRootPath, path);
+        string fullPath = Path.Combine(env.WebRootPath, path);
 
         return File.Exists(fullPath)
             ? Task.Run(() => File.Delete(fullPath))

@@ -104,6 +104,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
 
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.UseCors(cfg =>

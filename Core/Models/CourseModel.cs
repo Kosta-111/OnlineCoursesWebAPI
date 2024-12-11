@@ -13,4 +13,6 @@ public class CourseModel
     public bool IsCertificate { get; set; }
     public string LevelName { get; set; } = null!;
     public string CategoryName { get; set; } = null!;
+    public int LevelId { get; set; }
+    public int CategoryId { get; set; }
 }
